@@ -47,21 +47,3 @@ select NAME_OF_SCHOOL, SAFETY_SCORE
 from portfolio.chicagopublicschools
 order by SAFETY_SCORE asc
 limit 5;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
