@@ -80,35 +80,38 @@ create table if not exists percentpopulationvaccinated
 (
 continent text,
 location text,
-date datetime,
+date text,
 population int,
-new_vaccination bigint,
+new_vaccination int,
 rolling_vaccination bigint
 );
 
 insert into percentpopulationvaccinated
-SELECT dea.continent, dea.location, convert(dea.date,datetime), dea.population,
-convert(vac.new_vaccinations, unsigned int) as new_vaccinations,
-sum(cast(vac.new_vaccinations as unsigned int)) over (partition by dea.location order by dea.location, dea.date)
+SELECT dea.continent, dea.location, dea.date, dea.population,
+convert(vac.new_vaccinations, unsigned) as new_vaccinations,
+sum(cast(vac.new_vaccinations as unsigned)) over (partition by dea.location order by dea.location, dea.date)
 as Rolling_vaccinated
 FROM portfolio.`covid-death` dea
 JOIN portfolio.`covid-vaccinations` vac
     on dea.location = vac.location
     and dea.date = vac.date 
-where dea.continent is not null
-order by 2,3;
+where dea.continent is not null and dea.location = 'Australia' and
+ dea.date <'2021/08/01';
 select *
 from percentpopulationvaccinated;
 
-create view percentpopulationvaccinated as
-SELECT dea.continent, dea.location, convert(dea.date,datetime), dea.population, convert(vac.new_vaccinations, unsigned int),
-sum(cast(vac.new_vaccinations as unsigned int)) over (partition by dea.location order by dea.location, dea.date) as Rolling_vaccinated
+create view percentpopulationvaccinated 
+as
+SELECT dea.continent, dea.location, dea.date, dea.population,
+convert(vac.new_vaccinations, unsigned) as new_vaccinations,
+sum(cast(vac.new_vaccinations as unsigned)) over (partition by dea.location order by dea.location, dea.date)
+as Rolling_vaccinated
 FROM portfolio.`covid-death` dea
 JOIN portfolio.`covid-vaccinations` vac
     on dea.location = vac.location
     and dea.date = vac.date 
-where dea.continent is not null ;
-
+where dea.continent is not null and dea.location = 'Australia' and
+ dea.date <'2021/08/01';
 
 
 
