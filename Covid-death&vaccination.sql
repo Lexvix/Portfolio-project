@@ -1,9 +1,14 @@
+/*
+Skills used: Joins, CTE's, Temp Tables, Windows Functions, Aggregate Functions, Creating Views, Converting Data Types
+*/
+
+
 SELECT * FROM portfolio.`covid-death` 
-where continent is not null 
+where continent <> '' 
 order by 3,4;
 
 SELECT * FROM portfolio.`covid-vaccinations` 
-where continent is not null 
+where continent <> '' 
 order by 3,4;
 
 SELECT location, date, total_cases, new_cases, total_deaths, population
@@ -19,27 +24,47 @@ FROM portfolio.`covid-death`
 where location like 'Australia'
 order by 1,2;
 
-SELECT location, population, max(total_cases) as HighestInfectionCount,  max(total_cases/population) as PercentpopulationInfected
-FROM portfolio.`covid-death` 
-where continent is not null 
-group by location, population
-order by PercentpopulationInfected desc;
+
 
 
 SELECT continent, MAX(cast(total_deaths as signed))as totaldeathcount
 FROM portfolio.`covid-death` 
-where continent is not null 
+where continent <> '' 
 group by continent
 order by totaldeathcount desc;
 
-
+#1#
 SELECT #date,
 sum(new_cases) as total_cases, sum(cast(new_deaths as signed)) as total_deaths, sum(cast(new_deaths as signed))/sum(new_cases)*100 as DeathPercentage
 FROM portfolio.`covid-death` 
-where continent is not null 
+where continent <> '' 
 #group by date
 order by 1,2;
 
+
+#2#
+select location, sum(cast(new_deaths as signed)) as totaldeathcount
+from portfolio.`covid-death` 
+where continent = ''
+and location not in ('World', 'European Union','International','High income','Low income')
+group by location
+order by totaldeathcount desc;
+
+
+#3#
+SELECT location, population, max(total_cases) as HighestInfectionCount,  max(total_cases/population)*100 as PercentpopulationInfected
+FROM portfolio.`covid-death` 
+where continent <> '' 
+group by location, population
+order by PercentpopulationInfected desc;
+
+
+#4#
+SELECT location, date, population, max(total_cases) as highestinfectioncount,  max(total_cases/population)*100 as PercentpopulationInfected
+FROM portfolio.`covid-death` 
+#where location like 'Australia'
+group by location, population, date
+order by PercentpopulationInfected desc;
 
 
 
@@ -50,7 +75,7 @@ FROM portfolio.`covid-death` dea
 JOIN portfolio.`covid-vaccinations` vac
     on dea.location = vac.location
     and dea.date = vac.date 
-where not dea.continent is null
+where dea.continent <> '' 
 order by 2,3;
 
 
@@ -67,7 +92,7 @@ FROM portfolio.`covid-death` dea
 JOIN portfolio.`covid-vaccinations` vac
     on dea.location = vac.location
     and dea.date = vac.date 
-where dea.continent is not null 
+where dea.continent <> '' 
 #order by 2,3
 )
 select *,(rollingpeoplevaccinated/population)*100 as vaccinated_rate
@@ -95,8 +120,7 @@ FROM portfolio.`covid-death` dea
 JOIN portfolio.`covid-vaccinations` vac
     on dea.location = vac.location
     and dea.date = vac.date 
-where dea.continent is not null and dea.location = 'Australia' and
- dea.date <'2021/08/01';
+where dea.continent <> '' and new_vaccinations <> '';
 select *
 from percentpopulationvaccinated;
 
@@ -110,8 +134,5 @@ FROM portfolio.`covid-death` dea
 JOIN portfolio.`covid-vaccinations` vac
     on dea.location = vac.location
     and dea.date = vac.date 
-where dea.continent is not null and dea.location = 'Australia' and
- dea.date <'2021/08/01';
-
-
+where dea.continent <> '' and new_vaccinations <> '';
 
